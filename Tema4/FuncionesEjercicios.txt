@@ -1,0 +1,51 @@
+insert into - values -
+insert into - select -
+
+update - set - where -
+
+delete from - where -
+
+create view - as -
+
+rename table - to -
+
+show full tables (from -) where table_type = 'VIEW'
+
+drop view -
+
+create user - identified by - 
+
+set password for - = -
+
+rename user - to -
+
+alter user - 
+
+grant - on - to -
+
+show grants for - (using -)
+
+revoke - on - from -
+
+ ------ FUNCIONES
+ 
+ makedate(Año, DiaDelAño)
+
+set foreign_key_checks = 0/1
+
+date_add(fecha, interval n unidad)
+
+----------------------------------
+
+case when nombre condicion then -
+	 when nombre condicion then -
+	 end
+	 
+case nombre
+	when condicion_igualdad then -
+	when condicion_igualdad then -
+	end
+
+----------------------------------
+
+

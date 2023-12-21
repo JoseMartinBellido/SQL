@@ -1,0 +1,136 @@
+
+INSERT INTO table(c1,c2,...)
+VALUES 
+   (v11,v12,...),
+   (v21,v22,...),
+    ...
+   (vnn,vn2,...);
+   
+- Si queremos insertar el valor por defecto en uno de ellos, se usa DEFAULT
+
+- Fechas: 'YYYY-MM-DD'
+
+INSERT IGNORE INTO table(column_list)   ----> Ignora los que den error e inserta el resto
+VALUES( value_list),
+      ( value_list),
+      ...
+	  
+INSERT INTO table_name(column_list)
+SELECT 
+   select_list 
+FROM 
+   another_table
+WHERE
+   condition;
+   
+UPDATE [LOW_PRIORITY] [IGNORE] table_name    ----> LOW_PRIORITY actualiza la tabla al cerrar la base de datos
+SET 										 
+    column_name1 = expr1,
+    column_name2 = expr2,
+    ...
+[WHERE
+    condition];
+	
+
+DELETE FROM table_name
+WHERE condition;
+
+UPDATE T1, T2,									 ----> UPDATE JOIN
+[INNER JOIN | LEFT JOIN] T1 ON T1.C1 = T2. C1
+SET T1.C2 = T2.C2, 
+    T2.C3 = expr
+WHERE condition
+
+CREATE VIEW view_name [(column_list)] ----> CREATE VIEW
+AS
+  select-statement;
+  
+SHOW FULL TABLES [FROM db_name]       ----> Ver las vistas
+	WHERE table_type = 'VIEW';
+	
+
+DROP VIEW [IF EXISTS] view_name1 [,view_name2]...;	  ----> Eliminar vistas
+
+RENAME TABLE original_view_name TO new_view_name;     ----> Renombrar vistas
+
+CREATE TEMPORARY TABLE table_name( 					  ----> Crear tabla temporal
+   column1 datatype constraints,
+   column1 datatype constraints,
+   ...,
+   table_constraints
+);
+
+UNION - MINUS - INTERSECT
+
+-----------------------------------
+
+START TRANSACTION  statement. The BEGIN or  BEGIN WORK are the aliases of the START TRANSACTION.
+Para hacer los cambios permanentes -> COMMIT
+Para volver atrás y no realizar ningún cambio -> ROLLBACK
+Activar o desactivar autocommit -> SET autocommit = 0/1  /// SET autocommit = OFF/ON;
+
+
+-----------------------------------
+
+CREATE USER [IF NOT EXISTS] account_name 	 ----> Creación de usuario
+IDENTIFIED BY 'password';
+
+-- Donde account_name = username@hostname
+
+RENAME USER old_user1 TO new_user;			----> Renombrar usuario
+
+DROP USER account_name [,account_name2]...	----> Eliminar usuario
+
+UPDATE user 								----> Modificar contraseña
+SET password = PASSWORD('new_password')
+WHERE user = 'username' AND 
+      host = 'hostname';
+
+FLUSH PRIVILEGES;
+
+-- FLUSH PRIVILEGES -> Recarga los mismos privilegios que ya tenía asignados.
+
+		---- Cambio de contraseña. Otra forma.
+		
+SET PASSWORD FOR 'username'@'hostname' = new_password;
+
+		---- Cambio de contraseña. Otra forma.
+
+ALTER USER username@hostname IDENTIFIED BY 'new_password';
+
+
+GRANT privilege [,privilege],..  		  	----> Dar privilegios 						
+ON privilege_level 
+TO account_name;
+
+SHOW GRANTS FOR account_name | role		    ----> Comprobar privilegios
+
+REVOKE privilegee [,privilege].. 		    ----> Eliminar privilegios
+ON [object_type] privilege_level
+FROM user1 [, user2] ..;
+
+CREATE ROLE 							    ----> Se pueden crear roles y asignarles privilegios para poder interacturas con bases de datos
+		role1,
+		role2,
+		role3,
+		...;
+		
+		
+-- GRANT role TO account_name;			    ----> Asignar un rol a un usuario o varios con los permisos restringidos
+
+DROP ROLE rol1, rol2,... ;     			    ----> Elimina uno o varios roles
+
+use mysql;
+SELECT 										----> Forma de ver los usuarios y sus datos
+  user, 
+  host, 
+  account_locked, 
+  password_expired 
+FROM 
+  user;
+  
+ -- current_user para ver el que está conectado
+ 
+ CREATE | ALTER USER account_name 			----> Bloquear/Desbloquear usuario
+IDENTIFIED BY 'password'
+ACCOUNT LOCK | UNLOCK;

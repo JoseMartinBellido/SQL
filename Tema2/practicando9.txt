@@ -1,0 +1,83 @@
+drop schema if exists practicando9;
+
+create schema practicando9;
+use practicando9;
+
+create table CCC(
+	IdCuenta int auto_increment primary key,
+	CodBanco int not null,
+	CodSucursal int not null,
+	NumCuenta int not null,
+	unique (CodBanco, CodSucursal, NumCuenta)
+);
+
+create table Empleado(
+	CodEmp int auto_increment primary key,
+	NIF char(10) unique not null,
+	Nombre varchar(40),
+	NumHijos tinyint,
+	Retencion decimal(4,2),
+	IdCuenta int,
+	constraint fk_empleado foreign key (IdCuenta) references CCC(IdCuenta)
+);
+
+create table Departamento(
+	CodDpto int auto_increment primary key,
+	Nombre varchar(15)
+);
+
+create table Sede(
+	CodSede int auto_increment primary key,
+	Nombre varchar(20),
+	CodDpto int,
+	constraint fk_sede foreign key (CodDpto) references Departamento (CodDpto)
+);
+
+create table trabaja(
+	CodEmp int,
+	CodDpto int,
+	Funcion tinytext
+);
+
+alter table trabaja
+	add primary key (CodEmp, CodDpto),
+	add foreign key (CodEmp) references Empleado (CodEmp),
+	add foreign key (CodDpto) referneces Departamento (CodDpto);
+	
+create table ConceptoRetributivo(
+	Cod int,
+	Descripcion tinytext
+);
+
+alter table ConceptoRetributivo
+	modify Cod int auto_increment primary key;
+	
+create table Nomina(
+	IdNomina int,
+	IdCuenta int,
+	EjercFiscal tinyint,
+	Mes varchar(10),
+	NumOrden int,
+	CodEmp int
+);
+
+alter table Nomina
+	modify IdNomina int auto_increment primary key,
+	add unique (IdCuenta, EjercFiscal, Mes, NumOrden),
+	add constraint fk_nomina_1 foreign key (IdCuenta) references CCC(IdCuenta),
+	add constraint fk_nomina_2 foreign key (CodEmp) references Empleado(CodEmp),
+	add check (Upper(Mes) in 
+		('ENERO','FEBRERO','MARZO','ABRIL','MAYO','JUNIO','JULIO','AGOSTO','SEPTIEMBRE','OCTUBRE','NOVIEMBRE','DICIEMBRE'));
+	
+create table ingreso(
+	IdNomina int,
+	LineaNum int,
+	Cantidad decimal(8,2),
+	Concepto int
+);
+
+alter table ingreso
+	add primary key(IdNomina, LineaNum),
+	add constraint fk_ingreso_1 foreign key (IdNomina) references Nomina(IdNomina),
+	add constraint fk_ingreso_2 foreign key (Concepto) references ConceptoRetributivo(Cod);
+	

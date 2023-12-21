@@ -1,0 +1,442 @@
+Manual SQL
+
+
+CREATE TABLE
+
+CREATE TABLE [IF NOT EXISTS] table_name(
+	column_name1 data_type(length) [NOT NULL] [DEFAULT value] [AUTO_INCREMENT] column_constraint;
+	column_name2 data_type(length) [NOT NULL] [DEFAULT value] [AUTO_INCREMENT] column_constraint;
+	column_name3 data_type(length) [NOT NULL] [DEFAULT value] [AUTO_INCREMENT] column_constraint;
+	column_name4 data_type(length) [NOT NULL] [DEFAULT value] [AUTO_INCREMENT] column_constraint;
+	...
+	table_constraints
+) ENGINE=storage_engine;
+
+TABLE NAMES => UNIQUE, CHECK, PRIMARY KEY, FOREIGN KEY
+
+---------------------------------------------------------------------------------------------------------
+
+AUTO_INCREMENT
+
+Por defecto comienza en 1 e incrementa de 1 en 1.
+Para obtener el último insertado mediante consulta: LAST_INSERT_ID()
+
+---------------------------------------------------------------------------------------------------------
+
+RENAME TABLE
+
+RENAME TABLE old_table_name TO new_table_name,
+		        old_table_name2 TO new_table_name2
+		         ...;
+
+En el caso de renombrar, las foreign keys habrá que eliminarlas y rehacerlas, ya que no se actualizan automáticamente.
+
+---------------------------------------------------------------------------------------------------------
+
+ALTER TABLE
+
+ALTER TABLE table_name
+	ADD
+	new_column_name1 column_definition1
+	[FIRST | AFTER column_name],
+	ADD 
+	new_column_name2 column_defintion2
+	[FIRST | AFTER column_name]
+	
+	
+Para modificar una o varias columnas:
+	
+ALTER TABLE table_name
+	MODIFY column_name column_definition
+	[FIRST | AFTER column_name2],
+	MODIFY column_name column_definition
+	[FIRST | AFTER column_name2],
+	... ;
+	
+Para renombrar una columna:
+
+ALTER TABLE table_name
+	CHANGE COLUMN original_name new_name column_definition
+	[FIRST | AFTER column_name];
+	
+Para renombrar la tabla:
+
+ALTER TABLE table_name
+	RENAME TO new_table_name;
+
+---------------------------------------------------------------------------------------------------------
+
+DROP COLUMNS
+
+
+
+ALTER TABLE table_name
+	DROP [COLUMN] column_name1,
+	DROP [COLUMN] column_name2,
+	...;
+	
+Para ver las características de una tabla (nombres de campos, tipos, si puede ser null, etc.) se puede usar:
+
+DESCRIBE table_name;
+
+Dependiendo de cómo esté diseñada la tabla, intentar borrar una Foreign Key puede dar error.
+
+---------------------------------------------------------------------------------------------------------
+
+ADD COLUMN
+
+ALTER TABLE table_name
+	ADD [COLUMN] column_name1 column-definition [FIRST | AFTER existing_column1],
+	ADD [COLUMN] column_name2 column-definition [FIRST | AFTER existing_column2],
+	ADD [COLUMN] column_name3 column-definition [FIRST | AFTER existing_column3],
+	...;
+	
+Puede dar error en el caso de que exista ya la columna si no se añade el IF NOT EXISTS.
+
+---------------------------------------------------------------------------------------------------------
+
+DROP TABLE
+
+DROP [TEMPORARY] TABLE [IF EXISTS] table_name [, table_name] ...
+[RESTRICT | CASCADE]
+	 
+**** The RESTRICT and CASCADE options are reserved for the future versions of MySQL.
+
+**** MySQL DROP TABLE based on a pattern
+
+---------------------------------------------------------------------------------------------------------
+
+PRIMARY KEY
+
+Se puede añadir en 2 sitios distintos:
+
+CREATE TABLE table_name(
+    primary_key_column datatype PRIMARY KEY,
+    ...
+);
+
+O bien: 
+
+CREATE TABLE table_name ( 
+    primary_key_column datatype, 
+    ... ,
+    PRIMARY KEY(primary_key_column)
+);
+
+Se pueden tener una lista de columnas como Primary Key:
+
+CREATE TABLE table_name(
+    primary_key_column1 datatype,
+    primary_key_column2 datatype,
+    ...,
+    PRIMARY KEY(column_list)
+);
+
+KEY es sinónimo de INDEX. Se usa KEY cuando queremos crear un INDEX que no es PRIMARY KEY ni UNIQUE
+
+UNIQUE es un INDEX que asegura que los valores de la columna sean únicos.
+
+Para añadir un UNIQUE a una columna se usa:
+
+ALTER TABLE table_name
+	ADD UNIQUE INDEX index_name(column name ASC);
+	
+
+---------------------------------------------------------------------------------------------------------
+
+FOREIGN KEY
+
+Se pueden definir en CREATE TABLE o en ALTER TABLE con la siguiente sintaxis
+
+	[CONSTRAINT constraint_name]
+	FOREIGN KEY [foreign_key_name] (column_name, ...)
+	REFERENCES parent_table(colunm_name,...)
+	[ON DELETE reference_option]
+	[ON UPDATE reference_option]
+	
+Distintas opciones para ON DELETE y ON UPDATE: RESTRICT		CASCADE		SET NULL
+
+Para borrar una Foreign Key:
+
+ALTER TABLE table_name 
+	DROP FOREIGN KEY constraint_name;
+	
+Para comprobar las Foreign Keys de una tabla se puede usar la instrucción:
+
+SHOW CREATE TABLE table_name;
+
+**** Disabling foreign key checks ¿Desactivar temporalmente las Foreign Keys?
+
+	To disable foreign key checks, you use the following statement:
+
+	SET foreign_key_checks = 0;
+	Code language: SQL (Structured Query Language) (sql)
+	And you can enable it by using the following statement:
+
+	SET foreign_key_checks = 1;
+	
+---------------------------------------------------------------------------------------------------------
+
+UNIQUE Constraint
+
+Hay dos formas de definirla:
+
+CREATE TABLE table_name(
+    ...,
+    column_name data_type UNIQUE,
+    ...
+);
+
+O bien:
+
+CREATE TABLE table_name(
+   ...
+   column_name1 column_definition,
+   column_name2 column_definition,
+   ...,
+   [CONSTRAINT constraint_name]
+   UNIQUE(column_name1,column_name2)
+);
+
+**** ¿De esta forma se define UNIQUE para cada columna o se define un INDEX para todas en conjunto?
+
+Para eliminar una clave UNIQUE hay dos formas:
+
+DROP INDEX index_name ON table_name;
+
+O bien:
+
+ALTER TABLE table_name
+	DROP INDEX index_name;
+	
+---------------------------------------------------------------------------------------------------------
+
+DEFAULT Constraint
+
+Para añadir una opción DEFAULT a una columna de una tabla ya creada, se usa:
+
+ALTER TABLE table_name
+	ALTER COLUMN column_name SET DEFAULT default_value;
+
+Para eliminarla:
+
+ALTER TABLE cart_items
+	ALTER COLUMN column_name DROP DEFAULT;
+	
+---------------------------------------------------------------------------------------------------------
+
+CHECK CONSTRAINT
+
+Se usa para comprobar que se cumpla una condición en una columna, como puede ser un precio>=0 por ejemplo:
+
+[CONSTRAINT [constraint_name]] CHECK (expression) [[NOT] ENFORCED]
+
+ENFORCED y NOT ENFORCED es para forzar o no el check en la columna.
+
+Se puede usar dentro de un mismo campo para forzar una condición, o crear de forma independiente en un CREATE TABLE al final de todas las columnas como Constraint,
+para que se cumplan otras condiciones. Por ejemplo, hacer que columna2>=columna1 siempre.
+
+---------------------------------------------------------------------------------------------------------
+
+TEMPORARY TABLES
+
+Cumplen las siguientes condiciones:
+	* Una tabla temporal se elimina automáticamente al cerrar sesión o al interrumpir la conexión.
+	* Sólo es accesible por parte del usuario que la crea.
+	* Se puede crear una tabla temporal con el mismo nombre que otra no temporal, pero mientras esté activa, toda referencia a ese nombre será únicamente a la temporal.
+	
+Se pueden definir de dos formas:
+	
+CREATE TEMPORARY TABLE table_name(
+   column_1_definition,
+   column_2_definition,
+   ...,
+   table_constraints
+);
+
+O bien, obteniéndola de otra tabla:
+
+CREATE TEMPORARY TABLE temp_table_name
+	SELECT * FROM original_table
+	LIMIT 0;
+	
+El parámetro LIMIT solo establece el límite de elementos recogidos de la tabla.
+
+---------------------------------------------------------------------------------------------------------
+
+TRUNCATE TABLE
+
+Se usa para borrar todos los datos de una tabla. Es más eficiente que DELETE, puesto que lo que hace es borrar y crear la tabla exactamente igual pero vacía.
+
+TRUNCATE [TABLE] table_name;
+
+Esta instrucción dará error en el caso de que existan Foreign Keys.
+
+---------------------------------------------------------------------------------------------------------
+
+SELECT FROM
+
+SELECT select_list
+FROM table_name;
+
+The result of a SELECT statement is called a result set as it’s a set of rows that results from the query.
+
+SELECT * 
+FROM table_name;
+
+The query returns data from all the columns of the table_name table.
+
+---------------------------------------------------------------------------------------------------------
+
+WHERE
+
+SELECT 
+    select_list
+FROM
+    table_name
+WHERE
+    search_condition;
+	
+Se pueden establecer varias condiciones al mismo tiempo en la cláusula WHERE
+
+--- Con AND podemos poner varias clausulas al mismo tiempo.
+
+SELECT 
+    select_list
+FROM
+    table_name
+WHERE
+    search_condition_1 AND search_condition_2;
+	
+--- O bien, podemos poner que se cumpla alguna de ellas:
+
+WHERE 
+	search_condition_1 OR search_condition_2;
+	
+--- Podemos establecer un rango de valores de la siguiente forma:
+
+WHERE 
+	expression BETWEEN low AND high;
+	
+--- Si queremos seguir algún patrón, usamos la expresión LIKE:
+
+El patrón lo construimos de la siguiente forma:
+
+Construimos lo que queremos utilizar de base, de forma que coincida. 
+Antes o después, añadimos '%' o '*' para establecer que puede haber 1 o más carácteres que no nos importan.
+Si queremos decir que solo puede haber 1 carácter, usamos '_'
+
+--- Si queremos que un campo coincida con un valor de una lista:
+
+WHERE
+	value IN (value1, value2,...);
+	
+-- Si queremos hacer una consulta donde un valor sea nulo, no podemos poner value = NULL. Hay que usar lo siguiente:
+
+WHERE
+	value IS NULL;
+	
+--- Podemos usar los siguientes operadores:
+
+   = 	    -> Igualdad
+   <> o !=  -> Desigualdad
+   < 		-> Menor que
+   >		-> Mayor que
+   <=		-> Menor o igual que
+   >= 		-> Mayor o igual que
+   
+
+---------------------------------------------------------------------------------------------------------
+
+ORDER BY
+
+SELECT 
+   select_list
+FROM 
+   table_name
+ORDER BY 
+   column1 [ASC|DESC], 
+   column2 [ASC|DESC],
+   ...;
+   
+Por defecto, la clausula ORDER BY ordena por defecto en ASC si no se especifica. Con lo cual, las siguientes lineas funcionan igual:
+
+	ORDER BY column1; = ORDER BY column1 ASC;
+	
+--- Si se quiere ordenar por distintas columnas, se escribe como anteriormente, de forma que sigue el orden de la columna1, luego de la columna2, ...
+
+--- Se puede hacer un select de campos no existentes, por ejemplo de campos int haciendo operaciones entre ellas. Este es un ejemplo:
+
+SELECT 
+    orderNumber, 
+    orderlinenumber, 
+    quantityOrdered * priceEach
+FROM
+    orderdetails
+ORDER BY 
+   quantityOrdered * priceEach DESC;
+   
+--- Para establecer un orden determinado que no sea ascendente ni descendente, usamos FIELD:
+
+ORDER BY FIELD(nombre_campo,
+		'campo1',
+		'campo2',
+		'campo3',
+		...);
+		
+--- Es importante notar que cuando ordenamos, el valor NULL aparecerá el primero en orden ASC, o el útlimo en orden DESC.
+
+
+---------------------------------------------------------------------------------------------------------
+	
+DISTINCT
+
+SELECT DISTINCT
+    select_list
+FROM
+    table_name
+WHERE 
+    search_condition
+ORDER BY 
+    sort_expression;
+
+--- Se puede elegir en select_list un campo o varios, estableciendo	una tabla de tuplas únicas.
+
+--- Si hay varios valores NULL, se elegirá solo uno de ellos, considerándolos todos el mismo valor.
+
+
+---------------------------------------------------------------------------------------------------------
+
+
+LIMIT
+	
+SELECT 
+    select_list
+FROM
+    table_name
+LIMIT [offset,] row_count;
+
+--- Con offset nos referimos al punto de comienzo de la lista donde empezamos a contar.
+
+--- Con row_count se establece el número de elementos que vamos a listar.
+	
+
+---------------------------------------------------------------------------------------------------------	
+
+FUNCIONES AVANZADAS
+
+--- ISNULL(campo) funciona igual que (campo IS NULL)
+
+--- COALESCE(campo, sustitucion1, sustitucion2, ...) sirve para que no salgan campos null y se sustituyan por la sustitucion1. Puede ser un valor fijo u otro campo.
+Si sustitucion1 es nulo, pasa al 2 y así sucesivamente.
+
+--- IFNULL(campo, sustitucion) funciona como coalesce pero solo da una opción alternativa al campo.
+
+--- CASE WHEN - ELSE opciones en función de casos
+
+--- GREATEST y LEAST para dar el valor más alto y el más bajo de varias columnas simultáneamente. Para una sola columna, usamos MAX y MIN.
+
+--- 
+
+
+
