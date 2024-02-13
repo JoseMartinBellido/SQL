@@ -1,0 +1,17 @@
+
+
+	ENTIDAD -> Interior DAE8FC
+			   Línea 6C8EBF
+			   
+			   Atributo identificativo -> Opacidad 40%
+			   Atributo descriptivo -> Opacidad 80%
+			   Atributo multivaluado -> Opacidad 100%
+			   
+	RELACIÓN -> Interior F8CECC
+				Línea B85450
+				
+				Color relación global FF0000
+				Color relación individual 3399FF
+				Color relación descripción 006E37
+				
+	

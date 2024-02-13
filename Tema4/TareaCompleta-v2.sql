@@ -183,7 +183,7 @@ insert into Ciudades (nombre_ciudad, ccaa, poblacion)
 	select name, district, population from world.city;
     
 update Ciudades 
-	set prefijo_ccaa = left(ccaa,3);
+	set prefijo_ccaa = upper(left(ccaa,3));
 
 
 -- 10. Modifica los valores del campo Ciudad, de la tabla Encuestas.
